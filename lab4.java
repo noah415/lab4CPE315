@@ -323,8 +323,11 @@ class lab4
 
     private static void singleStep()
     {
+        Instruction inst = instructions.get(registerList[32]);
 
-        // if instruction is conditional branch
+        // if next instruction is conditional branch
+        if (inst.)
+        {
             // if the delay variable is == -1
                 // set the delay variable to 3
             // if the delay variable is > 0
@@ -340,8 +343,11 @@ class lab4
                 // print the status of the updated pipe queue
                 // set delay variable to -1
                 // execute the beq and next 3 steps
+        }
 
-        // if instruction is jump
+        // else if next instruction is jump
+        else if ()
+        {
             // if the delay variable is == -1
                 //set the delay variable to 1
             // if the delay variable is > 0
@@ -352,19 +358,35 @@ class lab4
                 // print the updated status of the pipe queue
                 // set delay variable to -1
                 // execute the jump inst.
+        }
 
-        // if instruction is lw
+        // else if next instruction is lw
+        else if ()
+        {
             // if the delay variable is == -1
-                // set the delay variable to 2
+                // set the delay variable to 1
             // if the delay variable is > 0
                 // enqueue the next chronological inst. into the pipe queue
                 // print the status of the pipe queue
                 // decrement the delay variable
+            // else if delay variable is == 0 && "stall" is needed
+                // insert "stall" into the id/exe pipe
+                // execute the lw
+            // else if delay variable is == 0 && "stall" is not needed
+                // execute the lw
+        }
 
+        // else
+        else
+        {
+            // enqueue the next instruction into the pipe queue
+            // print the status of the updated pipe
+            // execute inst.
+            inst.execute();
+        }
 
-        instructions.get(registerList[32]).execute();
-
-
+        // increment cycle count
+        cycles++;
     }
 
     private static void multStep(int numLoop)
@@ -450,8 +472,8 @@ class lab4
     private static void printPipes(){
         System.out.print("\npc\t\tif/id\t\tid/exe\t\texe/mem\t\tmem/wb\n");
         System.out.print(registerList[32] + "\t\t");
-        System.out.print(pipes[0].instr_name + "\t\t"+ pipes[1].instr_name);
-        System.out.print("\t\t" + pipes[2].instr_name + "\t\t" + pipes[3].instr_name);
+        System.out.print(pipes.get(0).instr_name + "\t\t"+ pipes.get(1).instr_name);
+        System.out.print("\t\t" + pipes.get(2).instr_name + "\t\t" + pipes.get(3).instr_name);
     }
 
     public static void main(String[] args)

@@ -14,8 +14,13 @@ class lab4
     static HashMap<String, Integer> registers = new HashMap<String, Integer>();
     static HashMap<Integer, String> reversed = new HashMap<Integer, String>();
     static ArrayList<Instruction> instructions = new ArrayList<Instruction>();
+    static ArrayList<Instruction> pipes = new ArrayList<Instruction>();
     static int[] registerList = new int[33];
     static int[] memory = new int[8192];
+
+    static int cycles = 0;
+    static int instCount = 0;
+    static int delay = 0;
 
     static void putValues(char prefix, int start, int end, int offset, HashMap<String, Integer> map){
         for(int i = start; i <= end; i++)
@@ -318,7 +323,48 @@ class lab4
 
     private static void singleStep()
     {
+
+        // if instruction is conditional branch
+            // if the delay variable is == -1
+                // set the delay variable to 3
+            // if the delay variable is > 0
+                // enqueue the next chronological inst into the pipe queue
+                // print the status of the updated pipe queue
+                // decrement the delay variable
+            // else if the delay variable is == 0 && branch is taken
+                // set appropriate pipes to "squash"
+                // print the status of the updated pipe queue
+                // set delay variable to -1
+                // execute the beq inst.
+            // else if the delay variable is == 0 && branch is not taken
+                // print the status of the updated pipe queue
+                // set delay variable to -1
+                // execute the beq and next 3 steps
+
+        // if instruction is jump
+            // if the delay variable is == -1
+                //set the delay variable to 1
+            // if the delay variable is > 0
+                // place the "squash" into the first pipe
+                // print the updated status of the pipe queue
+                // decrement the delay variable
+            // else if the delay variable is == 0
+                // print the updated status of the pipe queue
+                // set delay variable to -1
+                // execute the jump inst.
+
+        // if instruction is lw
+            // if the delay variable is == -1
+                // set the delay variable to 2
+            // if the delay variable is > 0
+                // enqueue the next chronological inst. into the pipe queue
+                // print the status of the pipe queue
+                // decrement the delay variable
+
+
         instructions.get(registerList[32]).execute();
+
+
     }
 
     private static void multStep(int numLoop)

@@ -447,6 +447,13 @@ class lab4
         }
     }
 
+    private static void printPipes(){
+        System.out.print("\npc\t\tif/id\t\tid/exe\t\texe/mem\t\tmem/wb\n");
+        System.out.print(registerList[32] + "\t\t");
+        System.out.print(pipes[0].instr_name + "\t\t"+ pipes[1].instr_name);
+        System.out.print("\t\t" + pipes[2].instr_name + "\t\t" + pipes[3].instr_name);
+    }
+
     public static void main(String[] args)
     {
         initMap();

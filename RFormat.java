@@ -2,7 +2,6 @@ import java.util.*;
 
 class RFormat extends Instruction
 {
-  public int opcode;
   public int rs;
   public int rt;
   public int rd;

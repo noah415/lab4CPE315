@@ -6,7 +6,7 @@ abstract class Instruction
   public Instruction(int opcode)
   {
     this.opcode = opcode;
-    this.instr_name = "";
+    this.instr_name = "empty";
   }
 
   protected void printSect(int arr[])

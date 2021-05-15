@@ -5,6 +5,10 @@ class JFormat extends Instruction
     public JFormat(int opcode, int address){
         super(opcode);
         this.address = address;
+        if(opcode == 2)
+            this.instr_name = "j";
+        if(opcode == 3)
+            this.instr_name = "jal";
     }
 
     // TODO: insert logic for calculating the address of label
@@ -30,10 +34,10 @@ class JFormat extends Instruction
         }
     }
 
-    private void j() { lab3.registerList[32] = address; }
+    private void j() { lab4.registerList[32] = address; }
 
     private void jal() {
-        lab3.registerList[31] = lab3.registerList[32] + 1;
-        lab3.registerList[32] = address;
+        lab4.registerList[31] = lab4.registerList[32] + 1;
+        lab4.registerList[32] = address;
     }
 }

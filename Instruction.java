@@ -1,10 +1,12 @@
 abstract class Instruction
 {
   public int opcode;
+  public String instr_name;
 
   public Instruction(int opcode)
   {
     this.opcode = opcode;
+    this.instr_name = "";
   }
 
   protected void printSect(int arr[])

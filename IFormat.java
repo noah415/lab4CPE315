@@ -8,6 +8,24 @@ class IFormat extends Instruction{
         this.rs = rs;
         this.rt = rt;
         this.immediate = immediate;
+        switch(opcode)
+        {
+            case 8:
+                this.instr_name = "addi";
+                break;
+            case 4:
+                this.instr_name = "beq";
+                break;
+            case 5:
+                this.instr_name = "bne";
+                break;
+            case 35:
+                this.instr_name = "lw";
+                break;
+            case 43:
+                this.instr_name = "sw";
+                break;
+        }
     }
 
     // TODO: insert logic for calculating the address of label (if needed)
@@ -28,45 +46,45 @@ class IFormat extends Instruction{
         {
             case 8:
                 addi();
-                lab3.registerList[32]++;
+                lab4.registerList[32]++;
                 break;
             case 4:
-                lab3.registerList[32]++;
+                lab4.registerList[32]++;
                 beq();
                 break;
             case 5:
-                lab3.registerList[32]++;
+                lab4.registerList[32]++;
                 bne();
                 break;
             case 35:
                 lw();
-                lab3.registerList[32]++;
+                lab4.registerList[32]++;
                 break;
             case 43:
                 sw();
-                lab3.registerList[32]++;
+                lab4.registerList[32]++;
                 break;
         }
     }
 
     // may be wrong registers
 
-    private void addi(){ lab3.registerList[rs] = lab3.registerList[rt] + immediate; }
+    private void addi(){ lab4.registerList[rs] = lab4.registerList[rt] + immediate; }
 
     private void beq(){
-        if (lab3.registerList[rs] == lab3.registerList[rt])
-            lab3.registerList[32] = lab3.registerList[32] + immediate;
+        if (lab4.registerList[rs] == lab4.registerList[rt])
+            lab4.registerList[32] = lab4.registerList[32] + immediate;
     }
 
     private void bne(){
-        if (lab3.registerList[rs] != lab3.registerList[rt])
-            lab3.registerList[32] = lab3.registerList[32] + immediate;
+        if (lab4.registerList[rs] != lab4.registerList[rt])
+            lab4.registerList[32] = lab4.registerList[32] + immediate;
     }
 
     private void lw(){
         //System.out.println("rt: " + rt + ", rs: " + rs + ", imm: " + immediate);
-        lab3.registerList[rt] = lab3.memory[lab3.registerList[rs] + immediate];
+        lab4.registerList[rt] = lab4.memory[lab4.registerList[rs] + immediate];
     }
 
-    private void sw(){ lab3.memory[lab3.registerList[rs] + immediate] = lab3.registerList[rt]; }
+    private void sw(){ lab4.memory[lab4.registerList[rs] + immediate] = lab4.registerList[rt]; }
 }

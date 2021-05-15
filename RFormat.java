@@ -14,6 +14,31 @@ class RFormat extends Instruction
     super(opcode);
     this.funct = funct;
 
+    switch(funct)
+    {
+      case 36:
+        this.instr_name = "and";
+        break;
+      case 37:
+        this.instr_name = "or";
+        break;
+      case 32:
+        this.instr_name = "add";
+        break;
+      case 0:
+        this.instr_name = "sll";
+        break;
+      case 34:
+        this.instr_name = "sub";
+        break;
+      case 42:
+        this.instr_name = "slt";
+        break;
+      case 8:
+        this.instr_name = "jr";
+        break;
+    }
+
     if (opcode == 0 && funct == 0)
     {
       this.rd = dest;
@@ -47,27 +72,27 @@ class RFormat extends Instruction
     {
       case 36:
         and();
-        lab3.registerList[32]++;
+        lab4.registerList[32]++;
         break;
       case 37:
         or();
-        lab3.registerList[32]++;
+        lab4.registerList[32]++;
         break;
       case 32:
         add();
-        lab3.registerList[32]++;
+        lab4.registerList[32]++;
         break;
       case 0:
         sll();
-        lab3.registerList[32]++;
+        lab4.registerList[32]++;
         break;
       case 34:
         sub();
-        lab3.registerList[32]++;
+        lab4.registerList[32]++;
         break;
       case 42:
         slt();
-        lab3.registerList[32]++;
+        lab4.registerList[32]++;
         break;
       case 8:
         jr();
@@ -77,36 +102,36 @@ class RFormat extends Instruction
 
   private void add()
   {
-    lab3.registerList[rd] = lab3.registerList[rs] + lab3.registerList[rt];
+    lab4.registerList[rd] = lab4.registerList[rs] + lab4.registerList[rt];
   }
 
   private void and()
   {
-    lab3.registerList[rd] = lab3.registerList[rs] & lab3.registerList[rt];
+    lab4.registerList[rd] = lab4.registerList[rs] & lab4.registerList[rt];
   }
 
   private void jr()
   {
-    lab3.registerList[32] = lab3.registerList[rs];
+    lab4.registerList[32] = lab4.registerList[rs];
   }
 
   private void or()
   {
-    lab3.registerList[rd] = lab3.registerList[rs] | lab3.registerList[rt];
+    lab4.registerList[rd] = lab4.registerList[rs] | lab4.registerList[rt];
   }
 
   private void slt()
   {
-    lab3.registerList[rd] = (lab3.registerList[rs] < lab3.registerList[rt]) ? 1 : 0;
+    lab4.registerList[rd] = (lab4.registerList[rs] < lab4.registerList[rt]) ? 1 : 0;
   }
 
   private void sll()
   {
-    lab3.registerList[rd] = lab3.registerList[rt] << shamt;
+    lab4.registerList[rd] = lab4.registerList[rt] << shamt;
   }
 
   private void sub()
   {
-    lab3.registerList[rd] = lab3.registerList[rs] - lab3.registerList[rt];
+    lab4.registerList[rd] = lab4.registerList[rs] - lab4.registerList[rt];
   }
 }

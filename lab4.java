@@ -370,7 +370,7 @@ class lab4
         if ()
         {
             // enqueue a "squash" to the if/id pipe
-            // return
+            // hazardFound = true
         }
 
         // if hazardFound is false

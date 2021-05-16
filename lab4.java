@@ -20,6 +20,7 @@ class lab4
 
     static int cycles = 0;
     static int instCount = 0;
+    static int pipePC = 1;
     static int delay = 0;
 
     static void putValues(char prefix, int start, int end, int offset, HashMap<String, Integer> map){
@@ -69,6 +70,12 @@ class lab4
 
         for(Map.Entry<String, Integer> entry : registers.entrySet()){
             reversed.put(entry.getValue(), "$" + entry.getKey());
+        }
+
+        // initializing the pipes array
+        for (int i = 0; i < 4; i++)
+        {
+            pipes.add(new Filler(-1));
         }
 
     }
@@ -321,69 +328,69 @@ class lab4
         }
     }
 
+    private static void updatePipes(Instruction newInst)
+    {
+        pipes.remove(0);
+        pipes.add(newInst);
+    }
+
     private static void singleStep()
     {
-        Instruction inst = instructions.get(registerList[32]);
+        Instruction newIF = instructions.get(registerList[32]);
+        Instruction newID = pipes.get(3);
+        Instruction newEXE = pipes.get(2);
+        Instruction newMEM = pipes.get(1);
+        Instruction oldMEM = pipes.get(0);
+        boolean hazardFound = false;
 
-        // if next instruction is conditional branch
-        if (inst.)
+        // if next mem/wb instruction is conditional branch
+        if ()
         {
-            // if the delay variable is == -1
-                // set the delay variable to 3
-            // if the delay variable is > 0
-                // enqueue the next chronological inst into the pipe queue
-                // print the status of the updated pipe queue
-                // decrement the delay variable
-            // else if the delay variable is == 0 && branch is taken
+            // if branch is taken
                 // set appropriate pipes to "squash"
                 // print the status of the updated pipe queue
-                // set delay variable to -1
                 // execute the beq inst.
-            // else if the delay variable is == 0 && branch is not taken
-                // print the status of the updated pipe queue
-                // set delay variable to -1
-                // execute the beq and next 3 steps
+                // hazardFound = true
+            // else if branch is not taken
+                // nothing is done and the rest of the if statements are run through
         }
 
-        // else if next instruction is jump
-        else if ()
+        // if next exe/mem instruction is lw && hazardFound is false
+        if ()
         {
-            // if the delay variable is == -1
-                //set the delay variable to 1
-            // if the delay variable is > 0
-                // place the "squash" into the first pipe
-                // print the updated status of the pipe queue
-                // decrement the delay variable
-            // else if the delay variable is == 0
-                // print the updated status of the pipe queue
-                // set delay variable to -1
-                // execute the jump inst.
+            // if use after load
+                // "stall" the id/exe pipe
+                // print the status of updated pipe
+                // hazardFound = true
+            // else if not
+                // run through the other if statement
         }
 
-        // else if next instruction is lw
-        else if ()
+        // if next id/exe instruction is jump && hazardFound is false
+        if ()
         {
-            // if the delay variable is == -1
-                // set the delay variable to 1
-            // if the delay variable is > 0
-                // enqueue the next chronological inst. into the pipe queue
-                // print the status of the pipe queue
-                // decrement the delay variable
-            // else if delay variable is == 0 && "stall" is needed
-                // insert "stall" into the id/exe pipe
-                // execute the lw
-            // else if delay variable is == 0 && "stall" is not needed
-                // execute the lw
+            // enqueue a "squash" to the if/id pipe
+            // return
         }
 
-        // else
-        else
+        // if hazardFound is false
+        if (!hazardFound)
         {
+            // no hazards have been found so update the pipe accordingly
             // enqueue the next instruction into the pipe queue
+            updatePipes(newIF);
+
             // print the status of the updated pipe
-            // execute inst.
-            inst.execute();
+            printPipes();
         }
+
+        // only executing inst. on mem/wb
+        if (!oldMEM.instr_name.equals("empty") &&
+                !oldMEM.instr_name.equals("squash") &&
+                !oldMEM.instr_name.equals("stall"))
+            oldMEM.execute();
+
+
 
         // increment cycle count
         cycles++;

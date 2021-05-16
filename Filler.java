@@ -11,11 +11,11 @@ class Filler extends Instruction{
     }
 
     public void execute(){
-        return
+        return;
     }
     public void printBinary()
     {
-        return
+        return;
     }
 
 }

@@ -539,7 +539,7 @@ class lab4
         int index = 0;
 
         if(args.length == 0 || args.length > 2){
-            System.out.println("Usage: lab3 inputFile <script>");
+            System.out.println("Usage: lab4 inputFile <script>");
             return;
         }
 

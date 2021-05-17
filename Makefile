@@ -53,13 +53,14 @@ CLASSES = \
 	IFormat.java \
 	RFormat.java \
 	JFormat.java \
-	lab3.java
+	Filler.java \
+	lab4.java
 
 #
 # MAIN is a variable with the name of the file containing the main method
 #
 
-MAIN = lab3
+MAIN = lab4
 
 #
 # the default make target entry

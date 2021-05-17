@@ -1,4 +1,9 @@
 class Filler extends Instruction{
+    public int rs;
+    public int rt;
+    public int rd;
+    public int shamt;
+    public int funct;
 
     public Filler(int op) {
         super(-1);
@@ -8,6 +13,11 @@ class Filler extends Instruction{
             this.instr_name = "stall";
         else
             this.instr_name = "squash";
+        this.rs = -1;
+        this.rt = -1;
+        this.rd = -1;
+        this.shamt = -1;
+        this.funct = -1;
     }
 
     public void execute(){

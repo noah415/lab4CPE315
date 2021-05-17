@@ -1,7 +1,7 @@
 class IFormat extends Instruction{
-    private int rs;
-    private int rt;
-    private int immediate;
+    public int rs;
+    public int rt;
+    public int immediate;
 
     public IFormat(int opcode, int rs, int rt, int immediate){
         super(opcode);
@@ -72,13 +72,19 @@ class IFormat extends Instruction{
     private void addi(){ lab4.registerList[rs] = lab4.registerList[rt] + immediate; }
 
     private void beq(){
-        if (lab4.registerList[rs] == lab4.registerList[rt])
+        if (lab4.registerList[rs] == lab4.registerList[rt]) {
             lab4.registerList[32] = lab4.registerList[32] + immediate;
+            lab4.taken = true;
+            lab4.taken_count = 2;
+        }
     }
 
     private void bne(){
-        if (lab4.registerList[rs] != lab4.registerList[rt])
+        if (lab4.registerList[rs] != lab4.registerList[rt]) {
             lab4.registerList[32] = lab4.registerList[32] + immediate;
+            lab4.taken = true;
+            lab4.taken_count = 2;
+        }
     }
 
     private void lw(){

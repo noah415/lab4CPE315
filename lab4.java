@@ -15,11 +15,22 @@ class lab4
     static HashMap<Integer, String> reversed = new HashMap<Integer, String>();
     static ArrayList<Instruction> instructions = new ArrayList<Instruction>();
     static ArrayList<Instruction> pipes = new ArrayList<Instruction>();
+    static ArrayList<Instruction> next_cmds = new ArrayList<Instruction>();
     static int[] registerList = new int[33];
     static int[] memory = new int[8192];
 
+    static boolean after_load = false;
+
+    static boolean jmp = false;
+    static int next_cmd = -1;
+    static boolean taken = false;
+    static int taken_count = -1;
+    static int taken_index = -1;
+
     static int cycles = 0;
+    static int instructs = 0;
     static int instCount = 0;
+    static int pipePC = 1;
     static int delay = 0;
 
     static void putValues(char prefix, int start, int end, int offset, HashMap<String, Integer> map){
@@ -69,6 +80,11 @@ class lab4
 
         for(Map.Entry<String, Integer> entry : registers.entrySet()){
             reversed.put(entry.getValue(), "$" + entry.getKey());
+        }
+
+        // initializing the pipes array
+        for (int i = 0; i < 4; i++) {
+            pipes.add(new Filler(-1));
         }
 
     }
@@ -206,10 +222,10 @@ class lab4
                 else {
                     dest = registers.get(instParts.get(1));
                     r1 = registers.get(instParts.get(2));
-                    if (registers.containsKey(instParts.get(3)))
-                        r2 = registers.get(instParts.get(3));
+                    if (registers.containsKey(instParts.get(3).trim()))
+                        r2 = registers.get(instParts.get(3).trim());
                     else
-                        r2 = Integer.parseInt(instParts.get(3));
+                        r2 = Integer.parseInt(instParts.get(3).trim());
                 }
                 RFormat r = new RFormat((int)rcodes.get(opcode)[0], dest, r1, r2, (int)rcodes.get(opcode)[1]);
                 // r.printBinary();
@@ -242,7 +258,7 @@ class lab4
                 if(labels.containsKey(instParts.get(1).trim()))
                     addr = labels.get(instParts.get(1).trim());
                 else
-                    addr = Integer.parseInt(instParts.get(1));
+                    addr = Integer.parseInt(instParts.get(1).trim());
                 JFormat j = new JFormat((int)jcodes.get(opcode)[0], addr);
                 instructions.add(j);
             }
@@ -321,50 +337,97 @@ class lab4
         }
     }
 
+    private static void updatePipes(Instruction newInst)
+    {
+        pipes.add(0, newInst);
+        pipes.remove(4);
+    }
+
     private static void singleStep()
     {
+        if(after_load){
+            pipes.add(1, new Filler(-2));
+            pipes.remove(4);
+            after_load = false;
+            cycles++;
+            return;
+        }
+        if(jmp) {
+            pipes.add(0, new Filler(-3));
+            pipes.remove(4);
+            jmp = false;
+            cycles++;
+            return;
+        }
+        if(taken){
+            if(taken_count == 0){
+                taken = false;
+                taken_count = -1;
+                Filler replacement = new Filler(-3);
+                updatePipes(replacement);
+                pipes.set(1, replacement);
+                pipes.set(2, replacement);
+                cycles++;
+                return;
+            }
+            Instruction popped = next_cmds.remove(0);
+            updatePipes(popped);
+            next_cmd++;
+            taken_count--;
+            cycles++;
+            return;
+        }
+        Instruction newIF = instructions.get(registerList[32]);
+        next_cmd = registerList[32] + 1;
+        // check if instruction is conditional branch
+        if(!taken && newIF instanceof IFormat && (newIF.opcode == 4 || newIF.opcode == 5)){
+            int temp = next_cmd;
+            next_cmds.clear();
+            for(int i = 0; i < 3; i++){
+                if(temp < instructions.size()){
+                    next_cmds.add(instructions.get(temp));
+                }
+                else
+                    next_cmds.add(new Filler(-1)) ;
+                temp++;
+            }
+        }
+        newIF.execute();
+        updatePipes(newIF);
+        Instruction newID = pipes.get(3);
+        Instruction newEXE = pipes.get(2);
+        Instruction newMEM = pipes.get(1);
+        Instruction oldMEM = pipes.get(0);
+        boolean hazardFound = false;
 
-        // if instruction is conditional branch
-            // if the delay variable is == -1
-                // set the delay variable to 3
-            // if the delay variable is > 0
-                // enqueue the next chronological inst into the pipe queue
-                // print the status of the updated pipe queue
-                // decrement the delay variable
-            // else if the delay variable is == 0 && branch is taken
-                // set appropriate pipes to "squash"
-                // print the status of the updated pipe queue
-                // set delay variable to -1
-                // execute the beq inst.
-            // else if the delay variable is == 0 && branch is not taken
-                // print the status of the updated pipe queue
-                // set delay variable to -1
-                // execute the beq and next 3 steps
-
-        // if instruction is jump
-            // if the delay variable is == -1
-                //set the delay variable to 1
-            // if the delay variable is > 0
-                // place the "squash" into the first pipe
-                // print the updated status of the pipe queue
-                // decrement the delay variable
-            // else if the delay variable is == 0
-                // print the updated status of the pipe queue
-                // set delay variable to -1
-                // execute the jump inst.
-
-        // if instruction is lw
-            // if the delay variable is == -1
-                // set the delay variable to 2
-            // if the delay variable is > 0
-                // enqueue the next chronological inst. into the pipe queue
-                // print the status of the pipe queue
-                // decrement the delay variable
-
-
-        instructions.get(registerList[32]).execute();
-
-
+        if(newMEM instanceof IFormat && newMEM.opcode == 35){
+            IFormat cand = (IFormat) newMEM;
+            if (oldMEM instanceof RFormat) {
+                RFormat if_id = (RFormat) oldMEM;
+                if (cand.rt == if_id.rs || cand.rt == if_id.rt)
+                    after_load = true;
+            }
+            else {
+                IFormat if_id = (IFormat) oldMEM;
+                // System.out.println("iformat rt: " + if_id.rt + " Op = " + if_id.instr_name);
+                // System.out.println("CAND.rt = " + cand.rs);
+                if ((cand.rt == if_id.rs))
+                    after_load = true;
+            }
+        }
+        if(oldMEM instanceof JFormat || oldMEM instanceof RFormat){
+            if (oldMEM instanceof RFormat){
+                RFormat rcand = (RFormat) oldMEM;
+                if(rcand.funct == 8)
+                    jmp = true;
+            }
+            else{
+                jmp = true;
+            }
+        }
+        // increment cycle count
+        cycles++;
+        instructs++;
     }
 
     private static void multStep(int numLoop)
@@ -384,10 +447,10 @@ class lab4
             numLoop = Integer.parseInt(instParts.get(1));
             multStep(numLoop);
         }
-        else
+        else {
             singleStep();
-
-        System.out.println("        " + numLoop + " instruction(s) executed");
+            printPipes();
+        }
     }
 
     private static void run()
@@ -396,6 +459,12 @@ class lab4
         {
             singleStep();
         }
+        cycles += 4;
+        System.out.println("\nProgram complete");
+        float cpi = (float) cycles / (float) instructs;
+        System.out.printf("CPI = %.3f", cpi);
+        System.out.print("\tCycles = " + cycles);
+        System.out.print("\tInstructions = " + instructs + "\n\n");
     }
 
     private static void printHelp()
@@ -444,14 +513,19 @@ class lab4
                 printHelp();
             else if (chr == 'c')
                 clearAll();
+            else if (chr == 'p')
+                printPipes();
         }
     }
 
     private static void printPipes(){
-        System.out.print("\npc\t\tif/id\t\tid/exe\t\texe/mem\t\tmem/wb\n");
-        System.out.print(registerList[32] + "\t\t");
-        System.out.print(pipes.get(0).instr_name + "\t\t"+ pipes.get(1).instr_name);
-        System.out.print("\t\t" + pipes.get(2).instr_name + "\t\t" + pipes.get(3).instr_name);
+        System.out.print("\npc\tif/id\tid/exe\texe/mem\tmem/wb\n");
+        if(!jmp && !taken)
+            System.out.print(registerList[32] + "\t");
+        else
+            System.out.print(next_cmd + "\t");
+        System.out.print(pipes.get(0).instr_name + "\t"+ pipes.get(1).instr_name);
+        System.out.print("\t" + pipes.get(2).instr_name + "\t" + pipes.get(3).instr_name + "\n\n");
     }
 
     public static void main(String[] args)
